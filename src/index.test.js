@@ -27,3 +27,25 @@ test("Test unsubscribe from event", () => {
 
     expect(EventBus.fire('new-event', true)).toStrictEqual([]);
 });
+
+test("Test multiple subscriber", () => {
+    const EventBus = EventBusFactory();
+
+    const firstSubscriber = EventBus.listen('same-message', payload => `First listener ${payload}`);
+    EventBus.listen('same-message', payload => `Second listener ${payload}`);
+
+    const message = 'You are cool!'
+
+    expect(EventBus.fire('same-message', message))
+        .toStrictEqual([
+            `First listener ${message}`,
+            `Second listener ${message}`
+        ]);
+
+    EventBus.unsubscribe('same-message', firstSubscriber)
+
+    expect(EventBus.fire('same-message', message))
+        .toStrictEqual([
+            `Second listener ${message}`
+        ]);
+});
